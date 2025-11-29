@@ -8,6 +8,7 @@ consumption by the Vite + React + TypeScript frontend.
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import pandas as pd
@@ -35,7 +36,17 @@ def build_affordability_dataset() -> Path:
     geographies = sorted(combined["geo_name"].unique())
 
     # Cast to standard Python types for JSON serialization
-    records = combined.to_dict(orient="records")
+    def _clean_record(rec: dict) -> dict:
+        cleaned = {}
+        for k, v in rec.items():
+            if isinstance(v, float) and math.isnan(v):
+                cleaned[k] = None
+            else:
+                cleaned[k] = v
+        return cleaned
+
+    raw_records = combined.to_dict(orient="records")
+    records = [_clean_record(r) for r in raw_records]
 
     payload = {
         "geographies": geographies,
