@@ -6,6 +6,7 @@ import { RentToIncomeChart } from './components/RentToIncomeChart'
 import { OwnerCostBurdenChart } from './components/OwnerCostBurdenChart'
 import { FmrVsRentChart } from './components/FmrVsRentChart'
 import { ProblemNarrative } from './components/ProblemNarrative'
+import { LoadCheckNarrative } from './components/LoadCheckNarrative'
 
 type AffordabilityMetric = {
   year: number
@@ -91,6 +92,8 @@ function App() {
       </section>
 
       <ProblemNarrative />
+
+      <LoadCheckNarrative />
 
       <section>
         <h2>Median Home Value Over Time</h2>

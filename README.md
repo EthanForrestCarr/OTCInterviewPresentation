@@ -234,3 +234,13 @@ Working with real federal datasets means accepting some quirks and documenting t
 - As a result, the `hud_fmr_2br` field is populated for years where HUD files are technically usable (roughly 2013–2021) and is `null` for 2022–2023. The frontend chart is robust to these gaps and simply shows missing HUD lines for the affected years.
 - From a portfolio and interview perspective, this is an example of designing a pipeline that is **resilient to messy real-world data**: the core ACS-based affordability metrics remain intact even when enrichment data (HUD FMRs) is partially unavailable.
 
+---
+
+## Load and Check Data
+
+Before building charts, the processed dataset is loaded back into Python to verify that it is ready for analysis and presentation. The main JSON file, `backend/data/processed/housing_affordability_timeseries.json`, contains 44 records (4 geographies × 11 years, 2013–2023), each with income, price, rent, and affordability metrics.
+
+For each numeric field, the pipeline checks for missing values and basic plausibility. All ACS-derived metrics (`median_household_income`, `median_home_value`, `median_gross_rent`, `price_to_income`, `rent_to_income`, and `owner_cost_burdened_share`) are fully populated across all 44 `(year, geography)` combinations, and their ranges are consistent with expectations for county- and city-level data (e.g., home values in the low hundreds of thousands, rent-to-income ratios in the 14–20% range). The only systematic missingness occurs in `hud_fmr_2br`, which is `null` for 2022–2023 due to malformed HUD workbooks documented above.
+
+This quick load-and-check step ensures that the dashboard is built on a clean, internally consistent dataset, and it gives stakeholders confidence that apparent trends in the charts are not artifacts of parsing errors or unhandled missing data.
+
