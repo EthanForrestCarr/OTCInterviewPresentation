@@ -5,6 +5,7 @@ import { PriceToIncomeChart } from './components/PriceToIncomeChart'
 import { RentToIncomeChart } from './components/RentToIncomeChart'
 import { OwnerCostBurdenChart } from './components/OwnerCostBurdenChart'
 import { FmrVsRentChart } from './components/FmrVsRentChart'
+import { ProblemNarrative } from './components/ProblemNarrative'
 
 type AffordabilityMetric = {
   year: number
@@ -88,6 +89,8 @@ function App() {
           than peers in the Twin Cities.
         </p>
       </section>
+
+      <ProblemNarrative />
 
       <section>
         <h2>Median Home Value Over Time</h2>
