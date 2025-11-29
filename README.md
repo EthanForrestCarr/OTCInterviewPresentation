@@ -6,6 +6,16 @@ The project is inspired by preparing for a **Data Analyst interview with Otter T
 
 ---
 
+## Executive Summary
+
+This project analyzes housing affordability in Fergus Falls and Otter Tail County compared with Minneapolis and Hennepin County from 2013 to 2023, using ACS 5-year estimates and HUD Fair Market Rents. It asks whether Otter Tails traditional affordability advantage over the Twin Cities is shrinking, stable, or growing, and which householdsrenters or ownersare most affected.
+
+Across the period, Otter Tail and Fergus Falls remain more affordable than Minneapolis and Hennepin on key metrics: median home values and rents are lower, price-to-income ratios are roughly 3.03.3 versus 3.64.1 in the metro, and renters in Otter Tail spend the smallest share of income on rent (around 1415%, versus about 20% in Minneapolis). Owner cost-burdened shares are highest in Minneapolis and lowest in Fergus Falls, with Otter Tail and Hennepin in between. At the same time, median home values have risen sharply everywhere (roughly 5066% over the decade), with the fastest growth in the metro but substantial increases even in rural Otter Tail. HUD 2-bedroom FMRs generally track observed rents where files are usable, though some recent HUD workbooks are malformed and safely skipped.
+
+Taken together, the findings suggest that Otter Tail still offers a meaningful affordability advantage over the Twin Cities, especially for homeowners, but that rural households are not insulated from rising housing costs. The accompanying dashboard translates these metrics into clear time-series charts so county staff and other non-technical stakeholders can quickly see where local households are more or less strained than their metro counterparts.
+
+---
+
 ## Pose and Solve a Problem
 
 This project is framed around a concrete question a county analyst might be asked: **“Is Otter Tail County’s housing affordability advantage over the Twin Cities shrinking, stable, or growing—and who is most affected, renters or owners?”** In practical terms, county leaders want to know whether local households are facing Metro‑level housing stress, or whether Otter Tail still offers meaningfully more affordable options for both owning and renting.
@@ -243,4 +253,14 @@ Before building charts, the processed dataset is loaded back into Python to veri
 For each numeric field, the pipeline checks for missing values and basic plausibility. All ACS-derived metrics (`median_household_income`, `median_home_value`, `median_gross_rent`, `price_to_income`, `rent_to_income`, and `owner_cost_burdened_share`) are fully populated across all 44 `(year, geography)` combinations, and their ranges are consistent with expectations for county- and city-level data (e.g., home values in the low hundreds of thousands, rent-to-income ratios in the 14–20% range). The only systematic missingness occurs in `hud_fmr_2br`, which is `null` for 2022–2023 due to malformed HUD workbooks documented above.
 
 This quick load-and-check step ensures that the dashboard is built on a clean, internally consistent dataset, and it gives stakeholders confidence that apparent trends in the charts are not artifacts of parsing errors or unhandled missing data.
+
+---
+
+## Explore and Explain the Data
+
+After confirming the dataset was clean, the next step was to get acquainted with how affordability actually looks across places and over time. Using Python, the processed JSON was grouped by geography to compute simple summary statistics for key metrics: mean, minimum, and maximum price-to-income, rent-to-income, and owner cost-burdened share, along with 10-year percentage changes in median home values.
+
+This exploration showed clear and intuitive patterns. Homes are systematically more expensive relative to income in Minneapolis and Hennepin County than in Fergus Falls and Otter Tail County: average price-to-income ratios cluster around 4.0+ in Minneapolis versus roughly 3.0–3.3 in Fergus Falls and Otter Tail. Renters in Otter Tail spend the lowest share of income on rent (around 14–15%), while Minneapolis renters sit closer to 20%. Owner cost-burdened shares are highest in Minneapolis and lowest in Fergus Falls, with Otter Tail and Hennepin in between. Median home values have risen everywhere—on the order of 50–66% since 2013—with the fastest growth in the metro but substantial increases even in rural Otter Tail.
+
+These summary statistics informed the narrative and chart design. They confirm that Otter Tail still enjoys a meaningful affordability advantage over the Twin Cities, especially for homeowners, while also highlighting that rural households are not insulated from rising housing costs. The dashboard’s time-series charts make these contrasts and trends visible to non-technical stakeholders, turning the exploratory findings into an accessible story.
 

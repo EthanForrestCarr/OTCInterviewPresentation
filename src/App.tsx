@@ -7,6 +7,8 @@ import { OwnerCostBurdenChart } from './components/OwnerCostBurdenChart'
 import { FmrVsRentChart } from './components/FmrVsRentChart'
 import { ProblemNarrative } from './components/ProblemNarrative'
 import { LoadCheckNarrative } from './components/LoadCheckNarrative'
+import { ExploreExplainNarrative } from './components/ExploreExplainNarrative'
+import { ExecutiveSummary } from './components/ExecutiveSummary'
 
 type AffordabilityMetric = {
   year: number
@@ -74,6 +76,8 @@ function App() {
         County, Minneapolis, and Hennepin County.
       </p>
 
+      <ExecutiveSummary />
+
       <section>
         <h2>How to read this page</h2>
         <p>
@@ -94,6 +98,8 @@ function App() {
       <ProblemNarrative />
 
       <LoadCheckNarrative />
+
+      <ExploreExplainNarrative />
 
       <section>
         <h2>Median Home Value Over Time</h2>
