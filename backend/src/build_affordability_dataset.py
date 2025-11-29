@@ -25,12 +25,21 @@ def build_affordability_dataset() -> Path:
     """
 
     acs_df = load_acs_affordability()
-    hud_df = load_hud_fmr()
 
-    # Merge on (year, geo_name) where HUD data exists; keep all ACS rows.
-    combined = acs_df.merge(
-        hud_df, on=["year", "geo_name"], how="left", suffixes=("", "_hud")
-    )
+    # Attempt to load HUD FMR; if anything goes wrong, fall back to
+    # ACS-only data so the pipeline remains robust.
+    try:
+        hud_df = load_hud_fmr()
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"[build_affordability_dataset] HUD load failed, continuing without HUD: {exc}")
+        hud_df = None
+
+    if hud_df is not None and not hud_df.empty:
+        combined = acs_df.merge(
+            hud_df, on=["year", "geo_name"], how="left", suffixes=("", "_hud")
+        )
+    else:
+        combined = acs_df.copy()
 
     # Build the JSON structure expected by the frontend.
     geographies = sorted(combined["geo_name"].unique())

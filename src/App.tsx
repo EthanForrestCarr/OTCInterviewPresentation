@@ -3,6 +3,7 @@ import './App.css'
 import { MedianHomeValueChart } from './components/MedianHomeValueChart'
 import { PriceToIncomeChart } from './components/PriceToIncomeChart'
 import { RentToIncomeChart } from './components/RentToIncomeChart'
+import { OwnerCostBurdenChart } from './components/OwnerCostBurdenChart'
 
 type AffordabilityMetric = {
   year: number
@@ -12,6 +13,7 @@ type AffordabilityMetric = {
   median_gross_rent: number | null
   price_to_income: number | null
   rent_to_income: number | null
+  owner_cost_burdened_share?: number | null
   hud_fmr_2br?: number | null
 }
 
@@ -111,6 +113,16 @@ function App() {
           considered cost-burdened).
         </p>
         <RentToIncomeChart data={data} geographies={geographies} />
+      </section>
+
+      <section>
+        <h2>Owner Households Cost-Burdened (30%+)</h2>
+        <p>
+          Approximate share of owner-occupied households spending at least 30% of income on
+          housing costs. This is derived from ACS table B25091 by summing the 30%+ cost
+          brackets and dividing by the total number of owner households.
+        </p>
+        <OwnerCostBurdenChart data={data} geographies={geographies} />
       </section>
 
       <section>

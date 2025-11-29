@@ -112,6 +112,89 @@ def _load_single_table(year: int, table_id: str) -> pd.DataFrame:
     return tidy
 
 
+def _load_owner_cost_burden_share(year: int) -> pd.DataFrame:
+    """Load B25091 and compute share of owner households cost-burdened.
+
+    We approximate owner cost burden as the share of owner-occupied
+    housing units with costs >= 30% of household income. In the B25091
+    exports you downloaded, this corresponds to summing the rows whose
+    labels include "30.0 to 34.9 percent", "35.0 to 39.9 percent",
+    "40.0 to 49.9 percent", and "50.0 percent or more" and dividing by
+    the "Total:" row, for each geography.
+
+    Returns a tidy DataFrame with columns:
+    - year
+    - geo_name
+    - owner_cost_burdened_share (0–1)
+    """
+
+    csv_path = _find_table_file(year, "B25091")
+    df = pd.read_csv(csv_path)
+
+    if "Label (Grouping)" not in df.columns:
+        raise KeyError(
+            f"Expected 'Label (Grouping)' column in {csv_path}, found columns: {list(df.columns)}"
+        )
+
+    label_col = "Label (Grouping)"
+
+    total_row = df[df[label_col].astype(str).str.strip() == "Total:"]
+    if total_row.empty:
+        # Fall back to the first row if we can't find the explicit Total row.
+        total_row = df.iloc[[0]]
+
+    burden_labels = [
+        "30.0 to 34.9 percent",
+        "35.0 to 39.9 percent",
+        "40.0 to 49.9 percent",
+        "50.0 percent or more",
+    ]
+    burden_rows = df[
+        df[label_col]
+        .astype(str)
+        .str.strip()
+        .isin(burden_labels)
+    ]
+
+    # All geographic estimate columns (same pattern as other tables).
+    estimate_cols = [c for c in df.columns if c.endswith("!!Estimate")]
+    if not estimate_cols:
+        raise KeyError(
+            f"No '!!Estimate' columns found in {csv_path}; columns: {list(df.columns)}"
+        )
+
+    records = []
+    for col in estimate_cols:
+        geo_name = col.split("!!")[0]
+        total_raw = total_row.iloc[0][col]
+        if pd.isna(total_raw):
+            total_val = None
+        else:
+            total_val = float(str(total_raw).replace(",", "").strip() or 0.0)
+
+        burden_sum = 0.0
+        for _, r in burden_rows.iterrows():
+            raw = r[col]
+            if pd.isna(raw):
+                continue
+            burden_sum += float(str(raw).replace(",", "").strip() or 0.0)
+
+        if not total_val or total_val == 0:
+            share = None
+        else:
+            share = burden_sum / total_val
+
+        records.append(
+            {
+                "year": year,
+                "geo_name": geo_name,
+                "owner_cost_burdened_share": share,
+            }
+        )
+
+    return pd.DataFrame.from_records(records)
+
+
 def load_acs_affordability(years: List[int] | None = None) -> pd.DataFrame:
     """Load ACS data for the given years and return a tidy affordability DataFrame.
 
@@ -137,9 +220,11 @@ def load_acs_affordability(years: List[int] | None = None) -> pd.DataFrame:
         income = _load_single_table(year, "B19013")
         home_value = _load_single_table(year, "B25077")
         rent = _load_single_table(year, "B25064")
+        owner_burden = _load_owner_cost_burden_share(year)
 
         merged = income.merge(home_value, on=["geo_name", "year"], how="inner")
         merged = merged.merge(rent, on=["geo_name", "year"], how="inner")
+        merged = merged.merge(owner_burden, on=["geo_name", "year"], how="left")
 
         frames.append(merged)
 

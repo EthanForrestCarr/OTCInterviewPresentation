@@ -9,31 +9,21 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
-export type AffordabilityMetric = {
-  year: number
-  geo_name: string
-  median_household_income: number | null
-  median_home_value: number | null
-  median_gross_rent: number | null
-  price_to_income: number | null
-  rent_to_income: number | null
-  owner_cost_burdened_share?: number | null  // <-- add this line
-  hud_fmr_2br?: number | null
-}
+import type { AffordabilityMetric } from './MedianHomeValueChart'
 
 interface Props {
   data: AffordabilityMetric[]
   geographies: string[]
 }
 
-export function MedianHomeValueChart({ data, geographies }: Props) {
+export function OwnerCostBurdenChart({ data, geographies }: Props) {
   const years = Array.from(new Set(data.map((d) => d.year))).sort((a, b) => a - b)
 
   const series = years.map((year) => {
     const row: Record<string, number | null | number> = { year }
     for (const geo of geographies) {
       const match = data.find((d) => d.year === year && d.geo_name === geo)
-      row[geo] = match?.median_home_value ?? null
+      row[geo] = match?.owner_cost_burdened_share ?? null
     }
     return row
   })
@@ -48,16 +38,14 @@ export function MedianHomeValueChart({ data, geographies }: Props) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={380}>
+    <ResponsiveContainer width="100%" height={320}>
       <LineChart data={series} margin={{ top: 20, right: 30, left: 10, bottom: 20 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="year" />
-        <YAxis tickFormatter={(v) => (v == null ? '' : v.toLocaleString())} />
+        <YAxis tickFormatter={(v) => (v == null ? '' : (v * 100).toFixed(0) + '%')} />
         <Tooltip
           formatter={(value: any) =>
-            typeof value === 'number'
-              ? value.toLocaleString(undefined, { maximumFractionDigits: 0 })
-              : value
+            typeof value === 'number' ? (value * 100).toFixed(1) + '%' : value
           }
         />
         <Legend />

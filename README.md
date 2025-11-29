@@ -27,55 +27,77 @@ Properly scoping this project provides a roadmap and keeps the work tied to a cl
 	- Ability to **define and compute meaningful metrics** for housing affordability.  
 	- Ability to **communicate findings visually** in a way that a non-technical stakeholder (e.g., a county commissioner) can understand.
 
-### 2. Data to Be Used
+### 2. Data Sources (Implemented)
 
-The project will primarily rely on **public government datasets** that are realistic for county-level analysis:
+The project relies on **public government datasets** that are realistic for county-level analysis and are already wired into the current dashboard.
 
-- **U.S. Census Bureau – American Community Survey (ACS)**  
-	- Median home value (owner-occupied units).  
-	- Median gross rent.  
-	- Median household income.  
-	- Cost-burden–related tables where feasible (e.g., gross rent as a share of income).  
-	- Geography examples: Fergus Falls city, Otter Tail County, Minneapolis city, Hennepin County.
+#### American Community Survey (ACS)
 
-- **U.S. Department of Housing and Urban Development (HUD)**  
-	- Fair Market Rents (FMR) or Small Area FMRs as an additional view on rent levels.
+- **Source:** U.S. Census Bureau – ACS 5-year estimates, downloaded as CSVs from data.census.gov.  
+- **Years covered:** 2013–2023 (inclusive).  
+- **Tables used:**  
+	- `B19013` – Median household income (in the past 12 months).  
+	- `B25077` – Median value (owner-occupied housing units).  
+	- `B25064` – Median gross rent.  
+- **Geographies used:**  
+	- Fergus Falls city, Minnesota.  
+	- Otter Tail County, Minnesota.  
+	- Minneapolis city, Minnesota.  
+	- Hennepin County, Minnesota.
 
-- **Optional local or state data (stretch goals)**  
-	- County-level parcel or assessment data (Otter Tail, Hennepin) for trends in assessed value.  
-	- Minnesota state or local open data (e.g., building permits, housing stock) if time allows.
+From these tables, the backend computes:
 
-The exact tables and years may be adjusted based on data availability and quality, but the emphasis stays on **comparable affordability metrics across rural and metro geographies**.
+- Median home value time series.  
+- Median gross rent time series.  
+- Median household income time series.  
+- Price-to-income ratio = median home value / median household income.  
+- Rent-to-income share = (median gross rent × 12) / median household income.
 
-### 3. Planned Analytical Steps
+#### HUD Fair Market Rents (planned enhancement)
 
-At a high level, the analysis will follow this path:
+- **Source:** U.S. Department of Housing and Urban Development (HUD) Fair Market Rents (FMR).  
+- **Status:** Loader is scaffolded in `backend/src/load_hud.py`, but HUD FMR data is not yet surfaced in the live dashboard. This is a natural future enhancement.
+
+#### Optional local or state data (stretch goals)
+
+- County-level parcel or assessment data (Otter Tail, Hennepin) for trends in assessed value.  
+- Minnesota state or local open data (e.g., building permits, housing stock) if time allows.
+
+The emphasis remains on **comparable affordability metrics across rural and metro geographies**.
+
+### 3. Analytical Steps (Implemented Pipeline)
+
+The current implementation follows this concrete pipeline:
 
 1. **Gather and ingest data**  
-	 - Download ACS and HUD datasets (CSV or via API).  
-	 - Store raw files under a dedicated `backend/data/raw/` directory.
+	- Download ACS CSV exports for each year and table into year-specific folders (e.g., `2013/ACSDT5Y2013.B19013...csv`).  
+	- (Planned) Add HUD FMR Excel files alongside ACS data.
 
 2. **Clean and standardize**  
-	 - Filter data to the chosen geographies and years.  
-	 - Standardize column names and data types.  
-	 - Handle missing or unreliable estimates (e.g., margins of error, null values).
+	- Use `backend/src/load_acs.py` to read the ACS CSVs. These files are in a "wide-by-geo" format, with one row per metric and columns like `Fergus Falls city, Minnesota!!Estimate`.  
+	- Select the median estimate row for each table and extract all `!!Estimate` columns.  
+	- Normalize values to numeric types, handling commas, missing data, and `NaN` values.
 
 3. **Engineer affordability metrics**  
-	 - Compute median home value and median gross rent time series.  
-	 - Compute price-to-income and rent-to-income ratios:  
-		 - Price-to-income = median home value / median household income.  
-		 - Rent-to-income = (median gross rent × 12) / median household income.  
-	 - Optionally approximate cost-burdened shares using ACS tables where available.
+	- For each `(year, geography)` pair, compute:  
+		- `median_home_value` (from `B25077`).  
+		- `median_gross_rent` (from `B25064`).  
+		- `median_household_income` (from `B19013`).  
+		- `price_to_income = median_home_value / median_household_income`.  
+		- `rent_to_income = (median_gross_rent × 12) / median_household_income`.
 
 4. **Prepare data for visualization**  
-	 - Aggregate results into tidy, long-format tables suitable for plotting.  
-	 - Export processed data as **JSON files** with a clear schema under `backend/data/processed/`.  
-	 - Make these JSON files available to the frontend (e.g., by copying them into `frontend/public/data/`).
+	- Use `backend/src/build_affordability_dataset.py` to merge metrics across tables and years.  
+	- Export a single tidy JSON file, `backend/data/processed/housing_affordability_timeseries.json`, with schema:  
+		- `geographies`: list of included geography names.  
+		- `metrics`: list of records, each like:  
+			- `year`, `geo_name`, `median_household_income`, `median_home_value`, `median_gross_rent`, `price_to_income`, `rent_to_income`, `hud_fmr_2br` (optional, currently `null`).  
+	- Copy or sync this JSON file into `public/data/housing_affordability_timeseries.json` for the frontend.
 
 5. **Visualize and interpret**  
-	 - Build interactive charts (via Vite + React + TypeScript) to compare Fergus Falls / Otter Tail vs Minneapolis over time.  
-	 - Highlight key differences in affordability and trends.  
-	 - Summarize findings and possible implications for Otter Tail County decision-makers.
+	- The React app fetches `/data/housing_affordability_timeseries.json` at runtime.  
+	- Charts and narrative components render comparisons of Fergus Falls / Otter Tail vs Minneapolis / Hennepin over time.  
+	- The dashboard surfaces both raw price levels and affordability ratios, along with interview-ready narrative text.
 
 ### 4. Flexibility of Scope
 
@@ -112,55 +134,69 @@ This architecture mirrors a realistic workflow where analysts prepare data offli
 
 - **Language & Libraries**  
 	- Python 3.x.  
-	- Core libraries: `pandas`, `numpy`, `requests` (for scripted downloads), and optionally `python-dotenv` (for API keys).  
+	- Core libraries: `pandas`, `numpy`, and `openpyxl` (for potential HUD Excel inputs).  
+	- Dependencies are listed in `backend/requirements.txt`.
 
-- **Planned structure**  
-	- `backend/src/` – Python modules for configuration and data processing (e.g., `process_affordability.py`).  
-	- `backend/data/raw/` – raw CSVs or other source files as downloaded from ACS, HUD, or local portals.  
-	- `backend/data/processed/` – cleaned and aggregated outputs, including the JSON files consumed by the frontend.  
-	- `backend/requirements.txt` – Python dependencies.
+- **Structure (implemented)**  
+	- `backend/src/config.py` – project paths, list of years, and target geographies.  
+	- `backend/src/load_acs.py` – ACS loader tailored to wide-by-geo CSV exports.  
+	- `backend/src/load_hud.py` – scaffolded HUD FMR loader (future enhancement).  
+	- `backend/src/build_affordability_dataset.py` – merges metrics and writes the JSON dataset.  
+	- `backend/data/processed/` – processed outputs, including `housing_affordability_timeseries.json`.
 
 - **Responsibility**  
-	- Download or load relevant datasets.  
-	- Filter to target geographies (Fergus Falls, Otter Tail County, Minneapolis, Hennepin County).  
+	- Load ACS CSVs for the four geographies and specified years.  
 	- Compute affordability metrics (price-to-income, rent-to-income, trends).  
-	- Serialize results into a simple JSON schema, e.g.:
-		- `geographies`: list of included geography names.  
-		- `metrics`: list of records with fields such as `year`, `geo`, `median_home_value`, `median_household_income`, `median_gross_rent`, `price_to_income`, `rent_to_income`.
+	- Serialize results into a JSON schema consumed directly by the frontend.
 
 ### Frontend: Vite + React + TypeScript
 
 - **Framework & Tooling**  
-	- Vite (`create-vite`) with the React + TypeScript template.  
+	- Vite (React + TypeScript template).  
 	- React for component-based UI.  
 	- TypeScript for type safety and clear data contracts between components.  
-	- A charting library (e.g., Recharts or Chart.js via `react-chartjs-2`) for time-series and comparative charts.
+	- Recharts for time-series and comparative charts.
 
-- **Planned structure**  
-	- `frontend/src/` – React components, hooks, and types.  
-		- `App.tsx` – top-level layout and data loading.  
-		- `components/` – reusable chart and UI components (e.g., `ChartHousingTrends`, `MetricCards`).  
-		- `types/` – TypeScript interfaces describing the JSON data shape (e.g., `AffordabilityMetric`, `AffordabilityDataset`).  
-	- `frontend/public/data/` – location where processed JSON files are placed so the app can fetch them at runtime.  
-	- Standard Vite config files (`vite.config.ts`, `tsconfig.json`, etc.).
+- **Structure (implemented)**  
+	- `src/App.tsx` – top-level layout, data loading, narrative sections.  
+	- `src/components/MedianHomeValueChart.tsx` – multi-line chart of median home values over time.  
+	- `src/components/PriceToIncomeChart.tsx` – multi-line chart of price-to-income ratios over time.  
+	- `src/components/RentToIncomeChart.tsx` – multi-line chart of rent-to-income shares over time.  
+	- `public/data/housing_affordability_timeseries.json` – static JSON file served by Vite.
 
 - **Data flow in the frontend**  
-	- On application load, the frontend performs an HTTP GET to a static JSON endpoint (e.g., `/data/housing_affordability_timeseries.json`).  
-	- The response is parsed into strongly typed objects using the TypeScript interfaces.  
-	- Data is passed to visualization components that render charts comparing Fergus Falls / Otter Tail vs Minneapolis over time.
+	- On application load, `App.tsx` fetches `/data/housing_affordability_timeseries.json`.  
+	- The response is parsed into strongly typed objects (affordability metrics by year and geography).  
+	- Data is passed to chart components that render comparisons of Fergus Falls / Otter Tail vs Minneapolis / Hennepin.  
+	- Narrative sections ("How to read this page" and "Key takeaways for Otter Tail County") guide non-technical readers through interpretation.
 
-### Deployment Strategy
+### Local Setup & Run Instructions
 
-- **Local workflow**  
-	1. Run Python scripts in `backend/src/` to regenerate processed JSON files under `backend/data/processed/`.  
-	2. Copy or sync the relevant JSON files into `frontend/public/data/`.  
-	3. Run the Vite dev server for local development of the React app.
+**Backend: regenerate processed JSON**
 
-- **Render deployment (static site)**  
-	- The frontend is deployed as a static site on Render (or a similar platform).  
-	- Build command (example): `npm install && npm run build` inside the `frontend/` directory.  
-	- Publish directory: `dist/`, which includes both compiled assets and the `data/` JSON files.  
-	- When the Python analysis is updated and new JSON files are committed, the site can be automatically redeployed, updating the visualizations.
+```pwsh
+cd "c:\Users\ethan\Projects\Codecademy-Data-Analysis\backend"
+python -m src.build_affordability_dataset
+```
 
-This setup keeps the deployment simple enough for a free-tier portfolio project while still demonstrating a realistic separation between **analysis code** and **presentation layer**—a pattern that aligns well with how many government and analytics teams work.
+This command reads the ACS CSVs, recomputes affordability metrics, and writes `backend/data/processed/housing_affordability_timeseries.json`.
+
+**Copy JSON into the frontend public data folder**
+
+```pwsh
+cd "c:\Users\ethan\Projects\Codecademy-Data-Analysis"
+copy backend\data\processed\housing_affordability_timeseries.json public\data\housing_affordability_timeseries.json
+```
+
+**Frontend: install dependencies and run the dev server**
+
+```pwsh
+cd "c:\Users\ethan\Projects\Codecademy-Data-Analysis"
+npm install
+npm run dev
+```
+
+This starts the Vite dev server and serves both the React app and the JSON data. The site can later be built (`npm run build`) and deployed as a static site.
+
+This setup keeps deployment simple enough for a free-tier portfolio project while still demonstrating a realistic separation between **analysis code** and **presentation layer**—a pattern that aligns well with how many government and analytics teams work.
 

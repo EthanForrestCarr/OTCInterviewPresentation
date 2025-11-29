@@ -16,14 +16,21 @@ import pandas as pd
 from .config import PROJECT_ROOT
 
 
-# Placeholder mapping: update these paths to match your actual HUD files.
-# Example:
-# HUD_FMR_FILES = {
-#     2013: PROJECT_ROOT / "backend" / "data" / "raw" / "hud_fmr_2013.xls",
-#     2014: PROJECT_ROOT / "backend" / "data" / "raw" / "hud_fmr_2014.xls",
-#     2023: PROJECT_ROOT / "backend" / "data" / "raw" / "hud_fmr_county_2023.xlsx",
-# }
-HUD_FMR_FILES: Dict[int, Path] = {}
+# Mapping from year to HUD FMR Excel file paths. These files live in
+# the same year-labelled folders as the ACS CSV exports.
+HUD_FMR_FILES: Dict[int, Path] = {
+    2013: PROJECT_ROOT / "2013" / "FY2013_4050_Final.xls",
+    2014: PROJECT_ROOT / "2014" / "FY2014_4050_RevFinal.xls",
+    2015: PROJECT_ROOT / "2015" / "FY2015_4050_RevFinal (1).xls",
+    2016: PROJECT_ROOT / "2016" / "FY2016F-4050-RevFinal4.xlsx",
+    2017: PROJECT_ROOT / "2017" / "FY2017-4050-County-Level_Data.xlsx",
+    2018: PROJECT_ROOT / "2018" / "FY18_4050_FMRs_rev (1).xlsx",
+    2019: PROJECT_ROOT / "2019" / "FY2019_4050_FMRs_rev2.xlsx",
+    2020: PROJECT_ROOT / "2020" / "FY20_4050_FMRs_rev.xlsx",
+    2021: PROJECT_ROOT / "2021" / "FY21_4050_FMRs_rev.xlsx",
+    2022: PROJECT_ROOT / "2022" / "FY22_FMRs_revised.xlsx",
+    2023: PROJECT_ROOT / "2023" / "FY23_FMRs_revised.xlsx",
+}
 
 
 # Human-readable geography names here should match (or be mappable to)
@@ -64,8 +71,15 @@ def load_hud_fmr(years: List[int] | None = None) -> pd.DataFrame:
             print(f"[load_hud] Configured HUD file not found for {year}: {path}")
             continue
 
-        # Read Excel file. You may need engine="openpyxl" for .xlsx.
-        df = pd.read_excel(path)
+        # Read Excel file. Some HUD workbooks (notably 2023) have
+        # malformed XML properties that openpyxl cannot parse. In that
+        # case we log and skip the year instead of failing the entire
+        # pipeline.
+        try:
+            df = pd.read_excel(path)
+        except Exception as exc:  # pragma: no cover - defensive
+            print(f"[load_hud] Failed to read HUD workbook for {year}: {path} ({exc})")
+            continue
 
         # TODO: Update these column names after inspecting the file.
         # Common columns include identifiers for state, county/metro, and
