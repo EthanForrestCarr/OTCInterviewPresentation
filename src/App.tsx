@@ -10,6 +10,7 @@ import { ExploreExplainNarrative } from './components/ExploreExplainNarrative'
 import { ExecutiveSummary } from './components/ExecutiveSummary'
 import { InterviewQuestions } from './components/InterviewQuestions'
 import { GeneralInterviewQuestions } from './components/GeneralInterviewQuestions'
+import { Navbar } from './components/Navbar'
 
 type AffordabilityMetric = {
   year: number
@@ -83,44 +84,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:py-4">
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold uppercase tracking-wide text-sky-400">
-              Housing Affordability Study
-            </span>
-            <span className="text-sm text-slate-300">Otter Tail vs Minneapolis</span>
-          </div>
-          <nav className="hidden gap-4 text-xs font-medium text-slate-300 sm:flex">
-            <a href="#summary" className="hover:text-sky-300">
-              Summary
-            </a>
-            <a href="#how-to-read" className="hover:text-sky-300">
-              How to read
-            </a>
-            <a href="#problem" className="hover:text-sky-300">
-              Problem
-            </a>
-            <a href="#load-check" className="hover:text-sky-300">
-              Load &amp; check
-            </a>
-            <a href="#explore-explain" className="hover:text-sky-300">
-              Explore
-            </a>
-            <a href="#charts" className="hover:text-sky-300">
-              Charts
-            </a>
-            <a href="#interview-questions" className="hover:text-sky-300">
-              Interview
-            </a>
-            <a href="#general-interview" className="hover:text-sky-300">
-              General Qs
-            </a>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-4 sm:pt-6">
+      <main className="mx-auto max-w-5xl px-4 pb-16 pt-20 sm:pt-24">
         <section id="summary" className="mb-6 sm:mb-8">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             Housing Affordability: Otter Tail vs Minneapolis
@@ -166,52 +132,52 @@ function App() {
         </section>
 
         <section id="charts" className="space-y-10 sm:space-y-12">
-          <section>
+          <section className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
             <h2 className="text-xl font-semibold tracking-tight">Median Home Value Over Time</h2>
             <p className="mt-1 text-sm text-slate-200">
               Comparing median home values across Fergus Falls, Otter Tail County,
               Minneapolis, and Hennepin County.
             </p>
-            <div className="mt-4 rounded-xl bg-slate-900/40 p-3 sm:p-4">
+            <div className="mt-4 flex-1">
               <MedianHomeValueChart data={data} geographies={geographies} />
             </div>
           </section>
 
-          <section>
+          <section className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
             <h2 className="text-xl font-semibold tracking-tight">Price-to-Income Ratio</h2>
             <p className="mt-1 text-sm text-slate-200">
               How many years of median household income it would take to buy the median
               home (higher values indicate less affordability).
             </p>
-            <div className="mt-4 rounded-xl bg-slate-900/40 p-3 sm:p-4">
+            <div className="mt-4 flex-1">
               <PriceToIncomeChart data={data} geographies={geographies} />
             </div>
           </section>
 
-          <section>
+          <section className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
             <h2 className="text-xl font-semibold tracking-tight">Rent-to-Income Share</h2>
             <p className="mt-1 text-sm text-slate-200">
               Share of median household income going to median gross rent (30%+ is
               typically considered cost-burdened).
             </p>
-            <div className="mt-4 rounded-xl bg-slate-900/40 p-3 sm:p-4">
+            <div className="mt-4 flex-1">
               <RentToIncomeChart data={data} geographies={geographies} />
             </div>
           </section>
 
-          <section>
+          <section className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
             <h2 className="text-xl font-semibold tracking-tight">HUD Fair Market Rent vs Median Rent</h2>
             <p className="mt-1 text-sm text-slate-200">
               Comparison of HUD&apos;s 2-bedroom Fair Market Rent (FMR) benchmarks to observed
               median gross rent. Where available, dashed lines show FMR and solid lines
               show ACS median rent for the same geography.
             </p>
-            <div className="mt-4 rounded-xl bg-slate-900/40 p-3 sm:p-4">
+            <div className="mt-4 flex-1">
               <FmrVsRentChart data={data} geographies={geographies} />
             </div>
           </section>
 
-          <section>
+          <section className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
             <h2 className="text-xl font-semibold tracking-tight">
               Owner Households Cost-Burdened (30%+)
             </h2>
@@ -220,7 +186,7 @@ function App() {
               income on housing costs. This is derived from ACS table B25091 by summing the
               30%+ cost brackets and dividing by the total number of owner households.
             </p>
-            <div className="mt-4 rounded-xl bg-slate-900/40 p-3 sm:p-4">
+            <div className="mt-4 flex-1">
               <OwnerCostBurdenChart data={data} geographies={geographies} />
             </div>
           </section>

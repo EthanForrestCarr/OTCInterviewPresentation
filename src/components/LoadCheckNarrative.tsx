@@ -4,8 +4,7 @@ export function LoadCheckNarrative() {
       <h2>Load and Check Data</h2>
       <p>
         Before building charts, the processed dataset is loaded back into Python to verify
-        that it is ready for analysis and presentation. The main JSON file,
-        <code>backend/data/processed/housing_affordability_timeseries.json</code>, contains
+        that it is ready for analysis and presentation. The main JSON dataset contains
         44 records (4 geographies × 11 years, 2013–2023), each with income, price, rent,
         and affordability metrics.
       </p>
