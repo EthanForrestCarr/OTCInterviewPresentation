@@ -7,6 +7,7 @@ import { FmrVsRentChart } from './components/FmrVsRentChart'
 import { ProblemNarrative } from './components/ProblemNarrative'
 import { LoadCheckNarrative } from './components/LoadCheckNarrative'
 import { ExploreExplainNarrative } from './components/ExploreExplainNarrative'
+import { NextStepsNarrative } from './components/NextStepsNarrative'
 import { ExecutiveSummary } from './components/ExecutiveSummary'
 import { InterviewQuestions } from './components/InterviewQuestions'
 import { GeneralInterviewQuestions } from './components/GeneralInterviewQuestions'
@@ -189,6 +190,10 @@ function App() {
             <div className="mt-4 flex-1 min-h-[240px]">
               <OwnerCostBurdenChart data={data} geographies={geographies} />
             </div>
+          </section>
+
+          <section className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-3 sm:p-4">
+            <NextStepsNarrative />
           </section>
         </section>
 
