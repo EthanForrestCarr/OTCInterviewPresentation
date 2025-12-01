@@ -10,7 +10,6 @@ import { ExploreExplainNarrative } from './components/ExploreExplainNarrative'
 import { NextStepsNarrative } from './components/NextStepsNarrative'
 import { ExecutiveSummary } from './components/ExecutiveSummary'
 import { InterviewQuestions } from './components/InterviewQuestions'
-import { GeneralInterviewQuestions } from './components/GeneralInterviewQuestions'
 import { Navbar } from './components/Navbar'
 
 type AffordabilityMetric = {
@@ -202,13 +201,6 @@ function App() {
           className="mt-10 space-y-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4 sm:p-5"
         >
           <InterviewQuestions />
-        </section>
-
-        <section
-          id="general-interview"
-          className="mt-10 space-y-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4 sm:p-5"
-        >
-          <GeneralInterviewQuestions />
         </section>
 
         <section className="mt-10 space-y-3 rounded-xl border border-slate-800 bg-slate-900/40 p-4">

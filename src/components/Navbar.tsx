@@ -8,8 +8,8 @@ const sections = [
   { id: 'explore-explain', label: 'Explore' },
   { id: 'charts', label: 'Charts' },
   { id: 'interview-questions', label: 'Interview' },
-  { id: 'general-interview', label: 'General Qs' },
-]
+  { id: 'general-interview', label: 'General Qs', external: true, href: '/interview' },
+] as const
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -50,16 +50,22 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden gap-4 text-xs font-medium text-slate-300 sm:flex">
-            {sections.map(link => (
-              <button
-                key={link.id}
-                type="button"
-                onClick={() => handleNavClick(link.id)}
-                className="hover:text-sky-300"
-              >
-                {link.label}
-              </button>
-            ))}
+            {sections.map(link =>
+              link.external ? (
+                <a key={link.id} href={link.href} className="hover:text-sky-300">
+                  {link.label}
+                </a>
+              ) : (
+                <button
+                  key={link.id}
+                  type="button"
+                  onClick={() => handleNavClick(link.id)}
+                  className="hover:text-sky-300"
+                >
+                  {link.label}
+                </button>
+              ),
+            )}
           </nav>
 
           {/* Mobile menu button */}
@@ -98,16 +104,27 @@ export function Navbar() {
         }`}
       >
         <nav className="flex flex-col items-start gap-3 px-4 py-4 text-sm text-slate-100">
-          {sections.map(link => (
-            <button
-              key={link.id}
-              type="button"
-              onClick={() => handleNavClick(link.id)}
-              className="w-full text-left hover:text-sky-300"
-            >
-              {link.label}
-            </button>
-          ))}
+          {sections.map(link =>
+            link.external ? (
+              <a
+                key={link.id}
+                href={link.href}
+                className="w-full text-left hover:text-sky-300"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.label}
+              </a>
+            ) : (
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => handleNavClick(link.id)}
+                className="w-full text-left hover:text-sky-300"
+              >
+                {link.label}
+              </button>
+            ),
+          )}
         </nav>
       </div>
     </>
