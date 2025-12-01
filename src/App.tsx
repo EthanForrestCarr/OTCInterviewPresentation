@@ -8,6 +8,8 @@ import { ProblemNarrative } from './components/ProblemNarrative'
 import { LoadCheckNarrative } from './components/LoadCheckNarrative'
 import { ExploreExplainNarrative } from './components/ExploreExplainNarrative'
 import { ExecutiveSummary } from './components/ExecutiveSummary'
+import { InterviewQuestions } from './components/InterviewQuestions'
+import { GeneralInterviewQuestions } from './components/GeneralInterviewQuestions'
 
 type AffordabilityMetric = {
   year: number
@@ -107,6 +109,12 @@ function App() {
             </a>
             <a href="#charts" className="hover:text-sky-300">
               Charts
+            </a>
+            <a href="#interview-questions" className="hover:text-sky-300">
+              Interview
+            </a>
+            <a href="#general-interview" className="hover:text-sky-300">
+              General Qs
             </a>
           </nav>
         </div>
@@ -216,6 +224,20 @@ function App() {
               <OwnerCostBurdenChart data={data} geographies={geographies} />
             </div>
           </section>
+        </section>
+
+        <section
+          id="interview-questions"
+          className="mt-10 space-y-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4 sm:p-5"
+        >
+          <InterviewQuestions />
+        </section>
+
+        <section
+          id="general-interview"
+          className="mt-10 space-y-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4 sm:p-5"
+        >
+          <GeneralInterviewQuestions />
         </section>
 
         <section className="mt-10 space-y-3 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
