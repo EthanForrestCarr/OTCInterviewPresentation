@@ -5,13 +5,17 @@ type NavItem =
   | { id: string; label: string; external: true; href: string }
 
 const sections: NavItem[] = [
-  { id: 'summary', label: 'Summary' },
-  { id: 'how-to-read', label: 'How to read' },
-  { id: 'problem', label: 'Problem' },
-  { id: 'load-check', label: 'Load & check' },
-  { id: 'explore-explain', label: 'Explore' },
-  { id: 'charts', label: 'Charts' },
-  { id: 'interview-questions', label: 'Interview' },
+  { id: 'summary', label: 'Summary', external: true, href: '/#' },
+  { id: 'how-to-read', label: 'How to read', external: true, href: '/#how-to-read' },
+  { id: 'problem', label: 'Problem', external: true, href: '/#problem' },
+  { id: 'load-check', label: 'Load & check', external: true, href: '/#load-check' },
+  { id: 'explore-explain', label: 'Explore', external: true, href: '/#explore-explain' },
+  { id: 'charts', label: 'Charts', external: true, href: '/#charts' },
+
+  // Make Interview always go back to the dashboard (not the standalone page)
+  { id: 'interview-questions', label: 'Interview', external: true, href: '/#interview-questions' },
+
+  // Only this one should ever point at the standalone interview app
   { id: 'general-interview', label: 'General Qs', external: true, href: '/#interview' },
 ]
 
