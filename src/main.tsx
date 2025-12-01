@@ -4,9 +4,9 @@ import './index.css'
 import App from './App'
 import { InterviewApp } from './InterviewApp'
 
-const path = window.location.pathname
+const hash = window.location.hash
 
-const RootComponent = path.startsWith('/interview') ? InterviewApp : App
+const RootComponent = hash.startsWith('#interview') ? InterviewApp : App
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

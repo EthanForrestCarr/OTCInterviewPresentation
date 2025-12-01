@@ -12,7 +12,7 @@ const sections: NavItem[] = [
   { id: 'explore-explain', label: 'Explore' },
   { id: 'charts', label: 'Charts' },
   { id: 'interview-questions', label: 'Interview' },
-  { id: 'general-interview', label: 'General Qs', external: true, href: '/interview' },
+  { id: 'general-interview', label: 'General Qs', external: true, href: '/#interview' },
 ]
 
 export function Navbar() {
