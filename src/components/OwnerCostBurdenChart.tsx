@@ -44,6 +44,7 @@ export function OwnerCostBurdenChart({ data, geographies }: Props) {
         <XAxis dataKey="year" />
         <YAxis tickFormatter={(v) => (v == null ? '' : (v * 100).toFixed(0) + '%')} />
         <Tooltip
+          contentStyle={{ color: '#111827' }}
           formatter={(value: any) =>
             typeof value === 'number' ? (value * 100).toFixed(1) + '%' : value
           }

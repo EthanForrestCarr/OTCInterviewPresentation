@@ -44,6 +44,7 @@ export function FmrVsRentChart({ data, geographies }: Props) {
         <XAxis dataKey="year" />
         <YAxis tickFormatter={(v) => (v == null ? '' : v.toLocaleString())} />
         <Tooltip
+          contentStyle={{ color: '#111827' }}
           formatter={(value: any, name: string) =>
             typeof value === 'number'
               ? [

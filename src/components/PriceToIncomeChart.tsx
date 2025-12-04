@@ -44,6 +44,7 @@ export function PriceToIncomeChart({ data, geographies }: Props) {
         <XAxis dataKey="year" />
         <YAxis tickFormatter={(v) => (v == null ? '' : v.toFixed(1))} />
         <Tooltip
+          contentStyle={{ color: '#111827' }}
           formatter={(value: any) =>
             typeof value === 'number'
               ? value.toFixed(2)
